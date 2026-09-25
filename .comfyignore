@@ -1,0 +1,3 @@
+# Keep release automation and offline tools out of the installed node.
+.github/
+tools/

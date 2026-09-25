@@ -9,9 +9,14 @@ A ComfyUI sampler for [Alibaba PAI's Qwen-Image-2.1 Fun-Acc 4-Step](https://hugg
 1. Update ComfyUI to `0.36.0` or newer. Search for **Qwen-Image-2.1 Fun-Acc PDD 4-Step (T8)** in the node manager, or clone this repository into `ComfyUI/custom_nodes/`.
 2. Download `Qwen-Image-2.1-Fun-Acc-4Step-PDD-T8.safetensors` from the [model repository](https://huggingface.co/t8star/Qwen-Image-2.1-Fun-Acc-LoRAs-Comfy) into this node's `models/` folder.
 3. Get the Qwen-Image-2.1 base assets from [Comfy-Org](https://huggingface.co/Comfy-Org/Qwen-Image-2.1): place the diffusion model in `ComfyUI/models/diffusion_models/`, the Qwen3-VL text encoder in `ComfyUI/models/text_encoders/`, and the VAE in `ComfyUI/models/vae/`.
-4. Restart ComfyUI and open the [text-to-image workflow](example_workflows/Qwen-Image-2.1-Fun-Acc-PDD-4Step-T2I.json). Check the three base model filenames before running it.
+4. Restart ComfyUI, download one of the workflow JSON files below, and drag it onto the canvas. Check the base model filenames before running it.
 
-For image editing, connect the native `Text Encode Qwen Image 2.1` node's `positive` and `latent` outputs to this sampler, and provide that encoder with a reference image and VAE.
+| Workflow | Before running |
+|---|---|
+| [Text-to-image · download JSON](example_workflows/Qwen-Image-2.1-Fun-Acc-PDD-4Step-T2I.json) | Select the downloaded base assets and paired PDD file |
+| [Image editing · download JSON](example_workflows/Qwen-Image-2.1-Fun-Acc-PDD-4Step-Edit.json) | Upload a reference in `Load Image` and select the model files |
+
+Both files use ComfyUI's canvas workflow format and can be dragged onto the canvas. Install this node and download the models above before the first run.
 
 The paired model contains four separate output heads. Load it with this node; a standard LoRA Loader and KSampler do not reproduce its four-step sampling. Its tensor data matches the [source release](https://huggingface.co/alibaba-pai/Qwen-Image-2.1-Fun-Acc-LoRAs); only identification metadata was added. See the Hugging Face repository for the model license and attribution. Text-to-image and image editing were tested at 512×512 on ComfyUI `0.36.0`.
 

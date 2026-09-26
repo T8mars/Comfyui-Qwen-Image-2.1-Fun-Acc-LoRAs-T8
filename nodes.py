@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 import torch
+import folder_paths
 
 import comfy.lora
 import comfy.model_base
@@ -16,6 +17,7 @@ import comfy.utils
 
 
 MODEL_DIR = Path(__file__).resolve().parent / "models"
+MODEL_FILENAME = "Qwen-Image-2.1-Fun-Acc-4Step-PDD-T8.safetensors"
 MODEL_FORMAT = "t8_qwenimage21_funacc_pdd_4step_v1"
 SIGMAS = (1.0, 0.9169867038726807, 0.7861579060554504, 0.5494909882545471, 0.0)
 EXPECTED_TENSOR_COUNT = 528
@@ -28,11 +30,21 @@ class _PositiveGuider(comfy.samplers.CFGGuider):
         self.inner_set_conds({"positive": conditioning})
 
 
+def _model_choices() -> list[str]:
+    loras = {name for name in folder_paths.get_filename_list("loras")
+             if name.lower().endswith(".safetensors")}
+    legacy = {path.name for path in MODEL_DIR.glob("*.safetensors") if path.is_file()}
+    return sorted(loras | legacy)
+
+
 def _model_path(filename: str) -> Path:
-    choices = {p.name: p for p in MODEL_DIR.glob("*.safetensors") if p.is_file()}
-    if filename not in choices:
-        raise ValueError("Fun-Acc PDD model file is missing from the custom node's models folder.")
-    return choices[filename]
+    if filename in folder_paths.get_filename_list("loras") and filename.lower().endswith(".safetensors"):
+        return Path(folder_paths.get_full_path_or_raise("loras", filename))
+    if filename == Path(filename).name and filename.lower().endswith(".safetensors"):
+        legacy = MODEL_DIR / filename
+        if legacy.is_file():
+            return legacy
+    raise ValueError("Fun-Acc PDD model not found. Put it in ComfyUI/models/loras and restart ComfyUI.")
 
 
 def _prepare_patches(model, state: dict, metadata: dict):
@@ -90,12 +102,12 @@ def _prepare_patches(model, state: dict, metadata: dict):
 class FunAccPDD4StepSampler:
     @classmethod
     def INPUT_TYPES(cls):
-        choices = sorted(p.name for p in MODEL_DIR.glob("*.safetensors") if p.is_file())
+        choices = _model_choices()
         return {"required": {
             "model": ("MODEL",),
             "positive": ("CONDITIONING",),
             "latent_image": ("LATENT",),
-            "model_file": (choices or ["Place the paired model in models/ and restart ComfyUI"],),
+            "model_file": (choices or ["Place the paired model in ComfyUI/models/loras and restart ComfyUI"],),
             "seed": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFFFFFFFFFF}),
         }}
 

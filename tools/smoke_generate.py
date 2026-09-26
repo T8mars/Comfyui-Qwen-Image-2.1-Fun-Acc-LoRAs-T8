@@ -48,7 +48,10 @@ def main():
         "samples": torch.zeros((1, 4, args.size // 8, args.size // 8)),
         "downscale_ratio_spacial": 8,
     }
-    filename = next(nodes.MODEL_DIR.glob("*.safetensors")).name
+    filename = next((name for name in nodes._model_choices()
+                     if Path(name).name == nodes.MODEL_FILENAME), None)
+    if filename is None:
+        raise FileNotFoundError(f"Place {nodes.MODEL_FILENAME} in ComfyUI/models/loras")
     sampled = nodes.FunAccPDD4StepSampler().sample(model, positive, latent, filename, args.seed)[0]
     print("Sampled", tuple(sampled["samples"].shape), flush=True)
 

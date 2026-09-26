@@ -23,7 +23,11 @@ def main():
     spec.loader.exec_module(nodes)
 
     model = comfy.sd.load_diffusion_model(str(args.base_model.resolve()))
-    path = next(nodes.MODEL_DIR.glob("*.safetensors"))
+    filename = next((name for name in nodes._model_choices()
+                     if Path(name).name == nodes.MODEL_FILENAME), None)
+    if filename is None:
+        raise FileNotFoundError(f"Place {nodes.MODEL_FILENAME} in ComfyUI/models/loras")
+    path = nodes._model_path(filename)
     state, metadata = comfy.utils.load_torch_file(str(path), safe_load=True, return_metadata=True)
     patches, head_key, heads = nodes._prepare_patches(model, state, metadata)
     original_patch_count = len(model.patches)

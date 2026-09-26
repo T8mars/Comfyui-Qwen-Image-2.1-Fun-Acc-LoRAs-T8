@@ -8,7 +8,7 @@ A ComfyUI sampler for [Alibaba PAI's Qwen-Image-2.1 Fun-Acc 4-Step](https://hugg
 
 1. Update ComfyUI to `0.36.0` or newer. Search for **Qwen-Image-2.1 Fun-Acc PDD 4-Step (T8)** in the node manager, or clone this repository into `ComfyUI/custom_nodes/`.
 2. Download `Qwen-Image-2.1-Fun-Acc-4Step-PDD-T8.safetensors` from the [model repository](https://huggingface.co/t8star/Qwen-Image-2.1-Fun-Acc-LoRAs-Comfy) into **`ComfyUI/models/loras/`**. Restart ComfyUI and select it in the node's `model_file` menu. Configured LoRA paths and subfolders are supported; the node's legacy `models/` folder still works.
-3. Get the Qwen-Image-2.1 base assets from [Comfy-Org](https://huggingface.co/Comfy-Org/Qwen-Image-2.1): place the diffusion model in `ComfyUI/models/diffusion_models/`, the Qwen3-VL text encoder in `ComfyUI/models/text_encoders/`, and the VAE in `ComfyUI/models/vae/`.
+3. Get the Qwen-Image-2.1 base assets from [Comfy-Org](https://huggingface.co/Comfy-Org/Qwen-Image-2.1): place the diffusion model in `ComfyUI/models/diffusion_models/`, a **Qwen3-VL 8B** text encoder such as `qwen3vl_8b_int8_convrot.safetensors` in `ComfyUI/models/text_encoders/`, and the VAE in `ComfyUI/models/vae/`. `qwen3vl_4b_*` outputs 2560 channels; this diffusion model requires 4096.
 4. Restart ComfyUI, download one of the workflow JSON files below, and drag it onto the canvas. Check the base model filenames before running it.
 
 | Workflow | Before running |

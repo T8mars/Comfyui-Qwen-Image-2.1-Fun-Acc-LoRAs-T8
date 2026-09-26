@@ -8,7 +8,7 @@
 
 1. 更新 ComfyUI 至 `0.36.0` 或更新版本，在节点管理器中搜索 **Qwen-Image-2.1 Fun-Acc PDD 4-Step (T8)** 安装；也可将本仓库克隆到 `ComfyUI/custom_nodes/`。
 2. 从[模型仓库](https://huggingface.co/t8star/Qwen-Image-2.1-Fun-Acc-LoRAs-Comfy)下载 `Qwen-Image-2.1-Fun-Acc-4Step-PDD-T8.safetensors`，放入 **`ComfyUI/models/loras/`**，重启 ComfyUI 后在节点的 `model_file` 下拉框中选择。支持 ComfyUI 配置的其他 LoRA 路径及子目录；旧版节点 `models/` 目录仍可读取。
-3. 从 [Comfy-Org/Qwen-Image-2.1](https://huggingface.co/Comfy-Org/Qwen-Image-2.1) 准备基础模型：扩散模型放 `ComfyUI/models/diffusion_models/`，Qwen3-VL 文本编码器放 `ComfyUI/models/text_encoders/`，VAE 放 `ComfyUI/models/vae/`。
+3. 从 [Comfy-Org/Qwen-Image-2.1](https://huggingface.co/Comfy-Org/Qwen-Image-2.1) 准备基础模型：扩散模型放 `ComfyUI/models/diffusion_models/`，**Qwen3-VL 8B** 文本编码器（如 `qwen3vl_8b_int8_convrot.safetensors`）放 `ComfyUI/models/text_encoders/`，VAE 放 `ComfyUI/models/vae/`。`qwen3vl_4b_*` 输出 2560 维，而该扩散模型需要 4096 维，不能混用。
 4. 重启 ComfyUI，将下方工作流 JSON 下载并拖入画布，核对基础模型文件名后运行。
 
 | 工作流 | 使用前准备 |

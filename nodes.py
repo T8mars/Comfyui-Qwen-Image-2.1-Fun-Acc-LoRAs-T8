@@ -23,6 +23,7 @@ SIGMAS = (1.0, 0.9169867038726807, 0.7861579060554504, 0.5494909882545471, 0.0)
 EXPECTED_TENSOR_COUNT = 528
 EXPECTED_LORA_PAIRS = 231
 EXPECTED_FULL_WEIGHTS = 65
+EXPECTED_CONTEXT_DIM = 4096
 
 
 class _PositiveGuider(comfy.samplers.CFGGuider):
@@ -45,6 +46,20 @@ def _model_path(filename: str) -> Path:
         if legacy.is_file():
             return legacy
     raise ValueError("Fun-Acc PDD model not found. Put it in ComfyUI/models/loras and restart ComfyUI.")
+
+
+def _validate_positive_context(positive) -> None:
+    for index, item in enumerate(positive):
+        context = item[0]
+        actual_dim = context.shape[-1]
+        if actual_dim != EXPECTED_CONTEXT_DIM:
+            raise ValueError(
+                f"Qwen Image 2.1 needs {EXPECTED_CONTEXT_DIM}-channel text conditioning, "
+                f"but positive conditioning item {index} has {actual_dim} channels. "
+                "In CLIPLoader select a Qwen3-VL 8B text encoder, such as "
+                "qwen3vl_8b_int8_convrot.safetensors, then run TextEncodeQwenImage21 again. "
+                "Qwen3-VL 4B produces 2560 channels and is incompatible."
+            )
 
 
 def _prepare_patches(model, state: dict, metadata: dict):
@@ -118,6 +133,7 @@ class FunAccPDD4StepSampler:
     def sample(self, model, positive, latent_image, model_file, seed):
         if not isinstance(model.model, comfy.model_base.QwenImage21):
             raise ValueError("Load a native Qwen-Image-2.1 base model before this node.")
+        _validate_positive_context(positive)
 
         path = _model_path(model_file)
         state, metadata = comfy.utils.load_torch_file(str(path), safe_load=True, return_metadata=True)

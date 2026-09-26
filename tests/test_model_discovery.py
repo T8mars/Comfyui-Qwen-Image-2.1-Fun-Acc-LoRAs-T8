@@ -37,6 +37,7 @@ def load_nodes(lora_dir):
         stubs["comfy." + name] = child
         setattr(comfy, name, child)
     comfy.samplers.CFGGuider = type("CFGGuider", (), {})
+    comfy.model_base.QwenImage21 = type("QwenImage21", (), {})
 
     spec = importlib.util.spec_from_file_location("fun_acc_nodes_test", ROOT / "nodes.py")
     module = importlib.util.module_from_spec(spec)
@@ -85,6 +86,16 @@ class ModelDiscoveryTests(unittest.TestCase):
             self.nodes._model_path("missing.safetensors")
         with self.assertRaises(ValueError):
             self.nodes._model_path("../missing.safetensors")
+
+    def test_rejects_four_b_conditioning_before_sampling(self):
+        four_b = types.SimpleNamespace(shape=(1, 2417, 2560))
+        with self.assertRaisesRegex(ValueError, "Qwen3-VL 4B produces 2560"):
+            self.nodes._validate_positive_context([[four_b, {}]])
+        base = types.SimpleNamespace(model=self.nodes.comfy.model_base.QwenImage21())
+        with self.assertRaisesRegex(ValueError, "4096-channel text conditioning"):
+            self.nodes.FunAccPDD4StepSampler().sample(base, [[four_b, {}]], None, "unused", 0)
+        eight_b = types.SimpleNamespace(shape=(1, 2417, 4096))
+        self.nodes._validate_positive_context([[eight_b, {}]])
 
 
 if __name__ == "__main__":
